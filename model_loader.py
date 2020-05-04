@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import torchvision
 
 # import your model class
-# import ...
+from src import *
 
 # Put your transform function here, we will use it for our dataloader
 def get_transform(): 
@@ -31,18 +31,31 @@ class ModelLoader():
         #       2. load your state_dict
         #       3. call cuda()
         # self.model = ...
-        # 
-        pass
+        
+        self.model = KobeModel(num_classes = 10, encoder_features = 6, rm_dim = 800)
+        
+        self.model.load_state_dict(torch.load(model_file))
+        self.model.eval()
+        
+        self.device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+        
+        self.model.to(self.device)
+        
 
     def get_bounding_boxes(samples):
         # samples is a cuda tensor with size [batch_size, 6, 3, 256, 306]
         # You need to return a tuple with size 'batch_size' and each element is a cuda tensor [N, 2, 4]
         # where N is the number of object
-
-        pass
+        samples.to(self.device)
+        boxes, _ = self.model.get_bounding_boxes(samples)
+        
+        return boxes.cuda()
 
     def get_binary_road_map(samples):
         # samples is a cuda tensor with size [batch_size, 6, 3, 256, 306]
         # You need to return a cuda tensor with size [batch_size, 800, 800] 
         
-        pass
+        samples.to(self.device)
+        road_map, _ = self.model.get_road_map(samples)
+        
+        return road_map.cuda()
