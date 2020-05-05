@@ -19,6 +19,12 @@ def get_transform():
     # ])
     pass
 
+def get_transform_task1(): 
+    return torchvision.transforms.ToTensor()
+# For road map task
+def get_transform_task2(): 
+    return torchvision.transforms.ToTensor()
+
 class ModelLoader():
     # Fill the information for your team
     team_name = ''
