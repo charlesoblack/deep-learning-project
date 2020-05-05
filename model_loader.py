@@ -55,7 +55,8 @@ class ModelLoader():
         samples.to(self.device)
         boxes, _ = self.model.get_bounding_boxes(samples)
         
-        return boxes.cuda()
+        # converted to cuda already inside
+        return boxes
 
     def get_binary_road_map(samples):
         # samples is a cuda tensor with size [batch_size, 6, 3, 256, 306]
