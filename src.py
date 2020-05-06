@@ -398,35 +398,33 @@ class YoloDecoder(nn.Module):
 
         if not batch_norm:
             self.m = nn.Sequential(
-                    nn.Linear(6 * ENCODER_HIDDEN, 2 * 15 * 15),
+                    nn.Linear(6 * ENCODER_HIDDEN, 2 * 20 * 20),
                     nn.ReLU(),
-                    ReshapeLayer2d(2, 15),
+                    ReshapeLayer2d(2, 20),
                     nn.Conv2d(2, 2, kernel_size=3, stride = 1),
                     nn.ReLU(),
                     nn.MaxPool2d(kernel_size=2, stride = 1),
-                    ReshapeLayer1d(288),
-                    nn.Linear(288, S * S * (5 * B + self.num_classes)),
+                    ReshapeLayer1d(578),
+                    nn.Linear(578, S * S * (5 * B + self.num_classes)),
                     # Sigmoid is final layer in Yolo v1
                     nn.Sigmoid()
                     )
         else:
             self.m = nn.Sequential(
-                    nn.Linear(6 * ENCODER_HIDDEN, 2 * 15 * 15),
-                    nn.BatchNorm1d(2 * 15 * 15),
+                    nn.Linear(6 * ENCODER_HIDDEN, 2 * 20 * 20),
+                    nn.BatchNorm1d(2 * 20 * 20),
                     nn.ReLU(),
-                    ReshapeLayer2d(2, 15),
+                    ReshapeLayer2d(2, 20),
                     nn.Conv2d(2, 2, kernel_size=3, stride = 1),
                     nn.BatchNorm2d(2),
                     nn.ReLU(),
                     nn.MaxPool2d(kernel_size=2, stride = 1),
-                    ReshapeLayer1d(288),
+                    ReshapeLayer1d(578),
                     # no batch norm before final layer
-                    nn.Linear(288, S * S * (5 * B + self.num_classes)),
+                    nn.Linear(578, S * S * (5 * B + self.num_classes)),
                     # Sigmoid is final layer in Yolo v1
                     nn.Sigmoid()
                     )
-
-
         
     def forward(self, x):
 
