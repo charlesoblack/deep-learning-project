@@ -646,7 +646,6 @@ class RmDecoder(nn.Module):
 class KobeModel(nn.Module):
     
     def __init__(self, num_classes, encoder_features, rm_dim, prob_thresh=0.1, conf_thresh=0.1, nms_thresh=0.4, batch_norm=False, shared_decoder=False):
-
         super(KobeModel, self).__init__()
         
         
@@ -658,7 +657,7 @@ class KobeModel(nn.Module):
         if shared_decoder:
             # maybe want to expand instead of collapse
             self.shared_decoder = SharedDecoder(ENCODER_HIDDEN)
-        
+
         self.yolo_decoder = YoloDecoder(num_classes = num_classes, batch_norm = batch_norm)
         
         self.yolo_loss = YoloLoss(feature_size=S, num_bboxes=B, num_classes=num_classes, 
