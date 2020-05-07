@@ -311,17 +311,9 @@ class SharedDecoder(nn.Module):
 
     # output DIM = input ando utput dim
     # implements wide self attention
-    def __init__(self, DIM, heads = 2, seq_len = 6):
+    def __init__(self, DIM):
         super(SharedDecoder, self).__init__()
         self.dim = DIM
-        self.heads = 2
-
-
-        self.tokeys = nn.Linear(self.dim, self.heads * self.dim, bias = False)
-        self.toqueries = nn.Linear(self.dim, self.heads * self.dim, bias = False)
-        self.tovalues = nn.Linear(self.dim, self.heads * self.dim, bias = False)
-
-        self.unify_heads = nn.Linear(self.heads * self.dim, self.dim)
 
         self.final_layer = nn.Sequential(
                 nn.Linear(self.dim, self.dim),
@@ -330,39 +322,7 @@ class SharedDecoder(nn.Module):
 
 
     def forward(self, x):
-        # x is batch_size, t, dim
-
-        b, t, e = x.size()
-
-
-        h = self.heads
-
-        keys    = self.tokeys(x)   .view(b, t, h, e)
-        queries = self.toqueries(x).view(b, t, h, e)
-        values  = self.tovalues(x) .view(b, t, h, e)
-
-        keys = keys.transpose(1, 2).contiguous().view(b * h, t, e)
-        queries = queries.transpose(1, 2).contiguous().view(b * h, t, e)
-        values = values.transpose(1, 2).contiguous().view(b * h, t, e)
-
-        queries = queries / (e ** (1/4))
-        keys    = keys / (e ** (1/4))
-
-
-        dot = torch.bmm(queries, keys.transpose(1, 2))
-
-        assert dot.size() == (b*h, t, t)
-
-        dot = F.softmax(dot, dim=2)
-        # - dot now has row-wise self-attention probabilities
-
-        # apply the self attention to the values
-        out = torch.bmm(dot, values).view(b, h, t, e)
-
-        # swap h, t back, unify heads
-        out = out.transpose(1, 2).contiguous().view(b, t, h * e)
-        out = self.unify_heads(out)
-        out = self.final_layer(out)
+        out = self.final_layer(x)
 
         return out
 
@@ -679,9 +639,8 @@ class KobeModel(nn.Module):
 
             x_enc = FloatTensor(n_batch, t, ENCODER_HIDDEN).fill_(0)
             for i in range(t):
-                x_enc[:, i, :] = self.encoder(x[:, i, :])
+                x_enc[:, i, :] = self.shared_decoder(self.encoder(x[:, i, :]))
 
-            x = self.shared_decoder(x_enc)
             x = torch.cat([x[:, i, :] for i in range(t)], dim = 1)
         else:
             x = torch.cat([self.encoder(x[:, i, :]) for i in range(6)], dim = 1)
