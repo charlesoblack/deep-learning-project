@@ -98,6 +98,7 @@ model_loader = ModelLoader(model_file=opt.filename,
                            nms_thresh=opt.nms_thresh,
                            batch_norm=opt.batch_norm,
                            )
+
 model_loader.model.eval()
 
 print(model_loader)
