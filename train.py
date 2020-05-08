@@ -104,7 +104,6 @@ for epoch in range(n_epochs):
                kobe_optimizer,
                opt.verbose,
                opt.prince,
-               lambd = 25,
                )
 
     torch.save(kobe_model.state_dict(),
