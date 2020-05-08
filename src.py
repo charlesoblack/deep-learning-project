@@ -240,7 +240,7 @@ def load_weights_from_file(model, from_file):
         param.requires_grad = False
     
     for param in model.rm_decoder.parameters():
-	param.requires_grad = False
+	    param.requires_grad = False
 
     return model
 
