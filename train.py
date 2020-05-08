@@ -77,7 +77,7 @@ kobe_optimizer = torch.optim.Adam(kobe_model.parameters(),
 n_epochs = opt.n_epochs
 
 image_folder = opt.data_dir
-annotation_csv = f'{image_folder}/annotation.csv'
+annotation_csv = f'/scratch/gp1655/DL/data/annotation.csv'
 
 transform = torchvision.transforms.ToTensor()
 
