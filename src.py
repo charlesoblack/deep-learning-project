@@ -311,10 +311,10 @@ class SharedDecoder(nn.Module):
 
     # output DIM = input ando utput dim
     # implements wide self attention
-    def __init__(self, DIM, heads = 2, seq_len = 6):
+    def __init__(self, DIM, heads = 1, seq_len = 6):
         super(SharedDecoder, self).__init__()
         self.dim = DIM
-        self.heads = 2
+        self.heads = heads
 
 
         self.tokeys = nn.Linear(self.dim, self.heads * self.dim, bias = False)
@@ -669,7 +669,7 @@ class KobeModel(nn.Module):
         self.conf_thresh = conf_thresh
         self.nms_thresh = nms_thresh
 
-    def encode(self, x):
+    def encode_yolo(self, x):
         
         if self.shared_decoder_bool:
             # should be [n_batch, 6, encoder_dim
@@ -685,15 +685,20 @@ class KobeModel(nn.Module):
         else:
             x = torch.cat([self.encoder(x[:, i, :]) for i in range(6)], dim = 1)
             
+        return x 
+
+    def encode_rm(self, x):
+        x = torch.cat([self.encoder(x[:, i, :]) for i in range(6)], dim = 1)
         return x
-    
+
     def forward(self, x, yolo_targets = None, rm_targets = None ):
-        encoding = self.encode(x)
+        encoding_yolo = self.encode_yolo(x)
+        encoding_rm = self.encode_rm(x)
         
-        output_1, yolo_loss = self.get_bounding_boxes(x, encoding = encoding, targets = yolo_targets)
+        output_1, yolo_loss = self.get_bounding_boxes(x, encoding = encoding_yolo, targets = yolo_targets)
         
         # roadmap decoder
-        output_2, rm_loss = self.get_road_map(x, encoding, targets = rm_targets)
+        output_2, rm_loss = self.get_road_map(x, encoding = encoding_rm, targets = rm_targets)
         
         # output1 is not in the context of our bounding boxes
         #return output_1, output_2, yolo_loss, rm_loss
@@ -705,7 +710,8 @@ class KobeModel(nn.Module):
         from torchvision.ops import nms as torch_nms
 
         if encoding is None:
-            encoding = self.encode(x)
+            encoding = self.encode_yolo(x)
+
         
         outputs = self.yolo_decoder(encoding)
         
@@ -801,7 +807,7 @@ class KobeModel(nn.Module):
     
     def get_road_map(self, x, encoding = None, targets = None):
         if encoding is None:
-            encoding = self.encode(x)
+            encoding = self.encode_rm(x)
         
         outputs = self.rm_decoder(encoding)
         bce_loss = nn.BCELoss()
