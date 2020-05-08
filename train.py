@@ -54,7 +54,7 @@ if opt.no_pretrain:
                            shared_decoder = opt.shared_decoder
                            )
 else:
-    kobe_model = model_from_encoder('pretrain_model_2_epochs.pt',
+    kobe_model = model_from_encoder('/scratch/gp1655/DL/pretrain_model_2_epochs.pt',
                                     batch_norm=batch_norm,
                                     shared_decoder=opt.shared_decoder
                                     )
