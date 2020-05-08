@@ -23,7 +23,6 @@ parser.add_argument('--filename', type=str, default='kobe_model')
 parser.add_argument('--continue_training', action='store_true')
 parser.add_argument('--continue_from', type=str)
 parser.add_argument('--batch_norm', action='store_true')
-parser.add_argument('--data_dir', type=str, default='data')
 # need to fix this for preloaded encoder too, and continuing training
 parser.add_argument('--encoder_feature_size', type=int, default=6)
 opt = parser.parse_args()
@@ -39,6 +38,7 @@ if opt.continue_training:
 cuda = torch.cuda.is_available()
 device = 'cuda:0' if cuda else 'cpu'
 
+
 batch_norm = opt.batch_norm
 
 if opt.no_pretrain:
@@ -47,16 +47,13 @@ if opt.no_pretrain:
     kobe_model = KobeModel(num_classes=10,
                            encoder_features=opt.encoder_feature_size,
                            rm_dim=800,
-                           batch_norm=batch_norm,
+                           batch_norm = batch_norm
                            )
 else:
-    kobe_model = model_from_encoder('pretrain_model_2_epochs.pt',
-                                    batch_norm=batch_norm,
-                                    )
+    kobe_model = model_from_encoder('pretrain_model_2_epochs.pt', batch_norm = batch_norm)
 
 if opt.continue_training:
-    kobe_model = model_from_file(opt.continue_from,
-                                 batch_norm=batch_norm)
+    kobe_model = model_from_file(opt.continue_from, batch_norm = batch_norm)
 
 kobe_model.to(device)
 
@@ -70,12 +67,13 @@ kobe_optimizer = torch.optim.Adam(kobe_model.parameters(),
 
 n_epochs = opt.n_epochs
 
-image_folder = opt.data_dir
-annotation_csv = f'{image_folder}/annotation.csv'
+image_folder = 'data'
+annotation_csv = 'data/annotation.csv'
 
 transform = torchvision.transforms.ToTensor()
 
-labeled_scene_index = np.arange(106, 134)
+labeled_scene_index_train = np.arange(106, 126)
+labeled_scene_index_val= np.arange(126, 134)
 
 labeled_trainset = LabeledDataset(image_folder=image_folder,
                                   annotation_file=annotation_csv,
@@ -84,6 +82,13 @@ labeled_trainset = LabeledDataset(image_folder=image_folder,
                                   extra_info=False,
                                   )
 
+labeled_valset = LabeledDataset(image_folder=image_folder,
+                                annotation_file=annotation_csv,
+                                scene_index=labeled_scene_index_val,
+                                transform=transform,
+                                extra_info=False,
+                                )
+
 trainloader = torch.utils.data.DataLoader(labeled_trainset,
                                           batch_size=opt.batch_size,
                                           shuffle=True,
@@ -91,18 +96,40 @@ trainloader = torch.utils.data.DataLoader(labeled_trainset,
                                           collate_fn=collate_fn,
                                           )
 
+valloader = torch.utils.data.DataLoader(labeled_valset,
+                                        batch_size=opt.batch_size,
+                                        shuffle=True,
+                                        num_workers=0,
+                                        collate_fn=collate_fn,
+                                        )
+
+epochs_val_increasing = 0
+val_loss_previous = 999999
+
 for epoch in range(n_epochs):
     print("EPOCH: {}".format(epoch))
-    train_yolo(trainloader,
-               kobe_model,
-               kobe_optimizer,
-               opt.verbose,
-               opt.prince,
-               )
+    train_loss, val_loss = train_yolo(trainloader,
+                                      valloader,
+                                      kobe_model,
+                                      kobe_optimizer,
+                                      opt.verbose,
+                                      opt.prince,
+                                      )
+
+    # re-weigh val loss so that we can compare in the same scale as train loss
+    if val_loss > val_loss_previous and ((20 * val_loss / 8) > train_loss):
+        epochs_val_increasing += 1
+        val_loss_previous = val_loss
+    else:
+        epochs_val_increasing = 0
+        val_loss_previous = val_loss
 
     torch.save(kobe_model.state_dict(),
                f'{opt.filename}_{epoch}_epochs.pt')
 
+    if epochs_val_increasing >= 3 and epoch > 3:
+        # break before we remove the best one
+        break
     try:
         # keep the last 3 epochs and remove any previous ones
         os.remove(f'{opt.filename}_{epoch - 3}_epochs.pt')
