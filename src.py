@@ -258,7 +258,7 @@ def initialize_model_from_encoder(presaved_encoder, batch_norm, shared_decoder):
 
 
 # use this if you want Initialize Our Model with encoder weights from a file
-def load_model_from_encoder(presaved_encoder_file, batch_norm, shared_decoder:
+def load_model_from_encoder(presaved_encoder_file, batch_norm, shared_decoder):
     presaved_encoder = PreTaskEncoder(6)
     presaved_encoder.load_state_dict(torch.load(presaved_encoder_file))
     presaved_encoder.eval()
