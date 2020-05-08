@@ -103,8 +103,7 @@ for epoch in range(n_epochs):
                kobe_model,
                kobe_optimizer,
                opt.verbose,
-               opt.prince,
-               lambd = 25 
+               opt.prince
                )
 
     torch.save(kobe_model.state_dict(),
