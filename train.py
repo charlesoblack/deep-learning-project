@@ -26,6 +26,7 @@ parser.add_argument('--batch_norm', action='store_true')
 parser.add_argument('--shared_decoder', action='store_true')
 parser.add_argument('--data_dir', type=str, default='data')
 
+
 # need to fix this for preloaded encoder too, and continuing training
 parser.add_argument('--encoder_feature_size', type=int, default=6)
 opt = parser.parse_args()
