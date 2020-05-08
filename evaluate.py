@@ -18,6 +18,8 @@ from helper import compute_ats_bounding_boxes, compute_ts_road_map
 
 from model_loader import get_transform_task1, get_transform_task2, ModelLoader
 
+import matplotlib.pyplot as plt
+from helper import draw_box
 
 class Logger:
     # https://stackoverflow.com/questions/14906764/how-to-redirect-stdout-to-both-file-and-console-with-scripting
@@ -122,6 +124,9 @@ with torch.no_grad():
         if opt.verbose:
             print(f'{i} - Bounding Box Score: {ats_bounding_boxes:.4}')
             print(f'{i} - IOU_max: {iou_max}')
+        if (i == 30):
+            boxes_to_plot = predicted_bounding_boxes
+            real_boxes = target['bounding_box'][0]
 
     print('Finished testing bounding box')
 
@@ -136,9 +141,30 @@ with torch.no_grad():
         if opt.verbose:
             print(f'{i} - Road Map Score: {ts_road_map:.4}')
 
-        print()
+        if (i == 30):
+            roadmap_to_plot = predicted_road_map
+            real_roadmap = road_image
+            print(real_roadmap)
+            print(real_roadmap.shape)
 
     print('Finished testing road map')
+
+print('Generating Plots')
+fig, ax = plt.subplots()
+ax.imshow(np.squeeze(roadmap_to_plot) > 0.53, cmap ='binary');
+ax.plot(400, 400, 'x', color="cyan")
+for i, bb in enumerate(boxes_to_plot):
+    draw_box(ax, bb, color='red')
+    pass
+plt.savefig('predicted_map.png')
+
+fig, ax = plt.subplots()
+ax.imshow(np.squeeze(real_roadmap) > 0.53, cmap ='binary');
+ax.plot(400, 400, 'x', color="cyan")
+for i, bb in enumerate(real_boxes):
+    draw_box(ax, bb, color='red')
+    pass
+plt.savefig('real_map.png')
 
 print(f'{model_loader.team_name} - {model_loader.round_number} - Bounding Box Score: {total_ats_bounding_boxes / total:.4} - Road Map Score: {total_ts_road_map / total:.4}')
 print('Max bounding box score: 1.0, Max roadmap score: 1.0')

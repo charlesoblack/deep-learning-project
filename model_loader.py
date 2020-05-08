@@ -12,19 +12,19 @@ import torchvision
 from src import KobeModel
 
 # Put your transform function here, we will use it for our dataloader
-def get_transform(): 
+def get_transform():
     # return torchvision.transforms.Compose([
-    # 
-    # 
+    #
+    #
     # ])
     pass
 
 # Put your transform function here, we will use it for our dataloader
 # For bounding boxes task
-def get_transform_task1(): 
+def get_transform_task1():
     return torchvision.transforms.ToTensor()
 # For road map task
-def get_transform_task2(): 
+def get_transform_task2():
     return torchvision.transforms.ToTensor()
 
 class ModelLoader():
@@ -37,12 +37,12 @@ class ModelLoader():
 
     def __init__(self, model_file='kobe_model_w_pretrain2_9_epochs.pt', prob_thresh=0.1, conf_thresh=0.1, nms_thresh=0.4, batch_norm=False, shared_decoder=False):
 
-        # You should 
+        # You should
         #       1. create the model object
         #       2. load your state_dict
         #       3. call cuda()
         # self.model = ...
-        
+
         self.model = KobeModel(num_classes=10,
                                encoder_features=6,
                                rm_dim=800,
@@ -52,14 +52,14 @@ class ModelLoader():
                                batch_norm=batch_norm,
                                shared_decoder=shared_decoder
                                )
-        
+
         self.model.load_state_dict(torch.load(model_file))
         self.model.eval()
-        
+
         self.device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-        
+
         self.model.to(self.device)
-        
+
 
     def get_bounding_boxes(self, samples):
         # samples is a cuda tensor with size [batch_size, 6, 3, 256, 306]
@@ -69,14 +69,14 @@ class ModelLoader():
         boxes, _ = self.model.get_bounding_boxes(samples)
 
         # clamp any boxes that might be outside the frame
-        boxes.clamp_(-40, 40)
+        #boxes.clamp_(-40, 40)
 
         return boxes
 
     def get_binary_road_map(self, samples):
         # samples is a cuda tensor with size [batch_size, 6, 3, 256, 306]
-        # You need to return a cuda tensor with size [batch_size, 800, 800] 
-        
+        # You need to return a cuda tensor with size [batch_size, 800, 800]
+
         samples.to(self.device)
         road_map, _ = self.model.get_road_map(samples)
 
