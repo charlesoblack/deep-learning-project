@@ -23,7 +23,9 @@ parser.add_argument('--filename', type=str, default='kobe_model')
 parser.add_argument('--continue_training', action='store_true')
 parser.add_argument('--continue_from', type=str)
 parser.add_argument('--batch_norm', action='store_true')
+parser.add_argument('--shared_decoder', action='store_true')
 parser.add_argument('--data_dir', type=str, default='data')
+
 
 # need to fix this for preloaded encoder too, and continuing training
 parser.add_argument('--encoder_feature_size', type=int, default=6)
@@ -49,15 +51,18 @@ if opt.no_pretrain:
                            encoder_features=opt.encoder_feature_size,
                            rm_dim=800,
                            batch_norm=batch_norm,
+                           shared_decoder = opt.shared_decoder
                            )
 else:
     kobe_model = model_from_encoder('pretrain_model_2_epochs.pt',
                                     batch_norm=batch_norm,
+                                    shared_decoder=opt.shared_decoder
                                     )
 
 if opt.continue_training:
     kobe_model = model_from_file(opt.continue_from,
-                                 batch_norm=batch_norm)
+                                 batch_norm=batch_norm,
+                                 shared_decoder=opt.shared_decoder)
 
 kobe_model.to(device)
 

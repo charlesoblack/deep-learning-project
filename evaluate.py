@@ -54,6 +54,7 @@ parser.add_argument('--prob_thresh', type=float, default=0.1)
 parser.add_argument('--conf_thresh', type=float, default=0.1)
 parser.add_argument('--nms_thresh', type=float, default=0.4)
 parser.add_argument('--batch_norm', action = 'store_true')
+parser.add_argument('--shared_decoder', action = 'store_true')
 opt = parser.parse_args()
 
 print(f'Args: {opt}')
@@ -97,6 +98,7 @@ model_loader = ModelLoader(model_file=opt.filename,
                            conf_thresh=opt.conf_thresh,
                            nms_thresh=opt.nms_thresh,
                            batch_norm=opt.batch_norm,
+                           shared_decoder=opt.shared_decoder
                            )
 
 model_loader.model.eval()

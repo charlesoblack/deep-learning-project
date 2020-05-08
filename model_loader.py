@@ -35,7 +35,7 @@ class ModelLoader():
     team_member = ['Nabeel Sarwar', 'Esteban Navarro Garaiz', 'Guido Petri']
     contact_email = 'gp1655@nyu.edu'
 
-    def __init__(self, model_file='kobe_model_w_pretrain2_9_epochs.pt', prob_thresh=0.1, conf_thresh=0.1, nms_thresh=0.4, batch_norm=False):
+    def __init__(self, model_file='kobe_model_w_pretrain2_9_epochs.pt', prob_thresh=0.1, conf_thresh=0.1, nms_thresh=0.4, batch_norm=False, shared_decoder=False):
 
         # You should 
         #       1. create the model object
@@ -50,6 +50,7 @@ class ModelLoader():
                                conf_thresh=conf_thresh,
                                nms_thresh=nms_thresh,
                                batch_norm=batch_norm,
+                               shared_decoder=shared_decoder
                                )
         
         self.model.load_state_dict(torch.load(model_file))
