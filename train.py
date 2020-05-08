@@ -85,7 +85,7 @@ labeled_scene_index = np.arange(106, 134)
 
 labeled_trainset = LabeledDataset(image_folder=image_folder,
                                   annotation_file=annotation_csv,
-                                  scene_index=labeled_scene_index_train,
+                                  scene_index=labeled_scene_index,
                                   transform=transform,
                                   extra_info=False,
                                   )
