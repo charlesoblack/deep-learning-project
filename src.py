@@ -180,11 +180,13 @@ def transform_target(in_target):
     for tgt_index in range(len(in_target)):
         
         #how many boxes for these target
+        # for some reason the new dataloader has an extra tensor
         nbox = in_target[tgt_index]['bounding_box'][0].shape[0]
         individual_target = FloatTensor(nbox, 14).fill_(0)
         
         # CONVERT ALL THE BOUNDING BOXES for an individual sample at once
         
+        # new datalaoder has an extra tensor
         bbox = in_target[tgt_index]['bounding_box'][0].to(device)
         translation = FloatTensor(bbox.shape[0], bbox.shape[1], bbox.shape[2])
         translation[:, 0, :].fill_(-40)
