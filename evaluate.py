@@ -117,9 +117,12 @@ with torch.no_grad():
         sample, target, road_image = data
         sample = sample.cuda()
 
-        predicted_bounding_boxes = model_loader.get_bounding_boxes(sample)[0].cpu()
+        # predicted_bounding_boxes = model_loader.get_bounding_boxes(sample)[0].cpu()
+        # get the bounding boxes instead of the olo loss, and then first bounding box
+        predicted_bounding_boxes = model_loader.model.get_bounding_boxes(sample, targets = target)[0][0].cpu()
         ats_bounding_boxes, iou_max = compute_ats_bounding_boxes(predicted_bounding_boxes, target['bounding_box'][0])
         total_ats_bounding_boxes += ats_bounding_boxes
+        print("Accuracy of the boxes detected {}".format(model_loader.model.yolo_loss.latest_class_acc))
 
         if opt.verbose:
             print(f'{i} - Bounding Box Score: {ats_bounding_boxes:.4}')

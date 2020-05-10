@@ -463,6 +463,9 @@ class YoloLoss(nn.Module):
         self.lambda_coord = lambda_coord
         self.lambda_noobj = lambda_noobj
 
+        self.latest_class_acc = None
+
+
     def compute_iou(self, bbox1, bbox2):
         """ Compute the IoU (Intersection over Union) of two set of bboxes, each bbox format: [x1, y1, x2, y2].
         Args:
@@ -587,6 +590,13 @@ class YoloLoss(nn.Module):
 
         # Class probability loss for the cells which contain objects.
         loss_class = F.mse_loss(class_pred, class_target, reduction='sum')
+
+        # label_preds
+        _, pred_labels = torch.max(class_pred, dim = 1)
+        _, actual_labels = torch.max(class_target, dim = 1)
+
+        self.latest_class_acc = (pred_labels == actual_labels).sum() / pred_labels.size(0)
+        self.latest_class_acc = self.latest_class_acc.item()
 
         # Total loss
         loss = self.lambda_coord * (loss_xy + loss_wh) + loss_obj + self.lambda_noobj * loss_noobj + loss_class
