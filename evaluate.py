@@ -119,7 +119,7 @@ with torch.no_grad():
         sample, target, road_image = data
         sample = sample.cuda()
 
-        yolo_targets = target
+        yolo_targets = (target,)
         yolo_targets = transform_target(yolo_targets).to(device)
 
         # predicted_bounding_boxes = model_loader.get_bounding_boxes(sample)[0].cpu()
