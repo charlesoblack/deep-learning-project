@@ -21,6 +21,8 @@ from model_loader import get_transform_task1, get_transform_task2, ModelLoader
 import matplotlib.pyplot as plt
 from helper import draw_box
 
+from src import transform_target
+
 class Logger:
     # https://stackoverflow.com/questions/14906764/how-to-redirect-stdout-to-both-file-and-console-with-scripting
     def __init__(self):
