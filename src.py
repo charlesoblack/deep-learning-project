@@ -180,12 +180,12 @@ def transform_target(in_target):
     for tgt_index in range(len(in_target)):
         
         #how many boxes for these target
-        nbox = in_target[tgt_index]['bounding_box'].shape[0]
+        nbox = in_target[tgt_index]['bounding_box'][0].shape[0]
         individual_target = FloatTensor(nbox, 14).fill_(0)
         
         # CONVERT ALL THE BOUNDING BOXES for an individual sample at once
         
-        bbox = in_target[tgt_index]['bounding_box'].to(device)
+        bbox = in_target[tgt_index]['bounding_box'][0].to(device)
         translation = FloatTensor(bbox.shape[0], bbox.shape[1], bbox.shape[2])
         translation[:, 0, :].fill_(-40)
         translation[:, 1, :].fill_(40)
@@ -211,7 +211,7 @@ def transform_target(in_target):
 
         labels = IntTensor(nbox)
         for box_index in range(nbox):
-            category = in_target[tgt_index]['category'][box_index]
+            category = in_target[tgt_index]['category'][0][box_index]
             
             # from which sample in the batch
             labels[box_index] = category
@@ -595,7 +595,7 @@ class YoloLoss(nn.Module):
         _, pred_labels = torch.max(class_pred, dim = 1)
         _, actual_labels = torch.max(class_target, dim = 1)
 
-        self.latest_class_acc = (pred_labels == actual_labels).sum() / pred_labels.size(0)
+        self.latest_class_acc = (pred_labels == actual_labels).sum() * 1.0 / pred_labels.size(0)
         self.latest_class_acc = self.latest_class_acc.item()
 
         # Total loss
