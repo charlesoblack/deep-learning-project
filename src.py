@@ -213,7 +213,7 @@ def transform_target(in_target):
 
         labels = IntTensor(nbox)
         for box_index in range(nbox):
-            category = in_target[tgt_index]['category'][box_index]
+            category = in_target[tgt_index]['category'][0][box_index]
             
             # from which sample in the batch
             labels[box_index] = category
