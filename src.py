@@ -798,6 +798,12 @@ class KobeModel(nn.Module):
             better_coordinates[under_fourty] = -40
             better_coordinates[over_fourty] = 40
 
+            under_40 = better_coordinates < -40
+            over_40 = better_coordinates > 40
+
+            better_coordinates[under_40] = -40
+            better_coordinates[over_40] = 40
+
             # reorder corners so it's clockwise from top left
             better_coordinates = better_coordinates[:, :, [0, 2, 3, 1]]
             

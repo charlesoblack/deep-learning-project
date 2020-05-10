@@ -68,9 +68,6 @@ class ModelLoader():
         samples.to(self.device)
         boxes, _ = self.model.get_bounding_boxes(samples)
 
-        # clamp any boxes that might be outside the frame
-        #boxes.clamp_(-40, 40)
-
         return boxes
 
     def get_binary_road_map(self, samples):
