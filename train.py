@@ -81,7 +81,7 @@ annotation_csv = f'{image_folder}/annotation.csv'
 
 transform = torchvision.transforms.ToTensor()
 
-labeled_scene_index = np.arange(106, 134)
+labeled_scene_index = np.arange(106, 120)
 
 labeled_trainset = LabeledDataset(image_folder=image_folder,
                                   annotation_file=annotation_csv,
